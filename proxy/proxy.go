@@ -47,10 +47,10 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// Proxy request
-		level.Error(logger).Log("msg", "Timeout scraping:", "timeout",  GetScrapeTimeoutWithLogger(r.Header, logger))
 		if r.URL.Host != "" {
-
-			ctx, _ := context.WithTimeout(r.Context(), GetScrapeTimeout(r.Header))
+			timeout := GetScrapeTimeout(r.Header)
+			level.Debug(logger).Log("msg", "Scraping", "timeout",  timeout)
+			ctx, _ := context.WithTimeout(r.Context(), timeout)
 			request := r.WithContext(ctx)
 			request.RequestURI = ""
 

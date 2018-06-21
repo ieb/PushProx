@@ -1,4 +1,4 @@
-# PushProx [![CircleCI](https://circleci.com/gh/ieb/PushProx.svg?style=shield)](https://circleci.com/gh/ieb/PushProx)
+# PushProx [![CircleCI](https://circleci.com/gh/adobe/PushProx.svg?style=shield)](https://circleci.com/gh/adobe/PushProx)
 
 PushProx is a client and proxy that allows transversing of NAT and other
 similar network topologies by Prometheus, while still following the pull model.
@@ -18,10 +18,10 @@ the client is running. Other than that the changes are minimal, mostly Docker co
 First build the proxy and client:
 
 ```
-go get github.com/ieb/pushprox/{client,proxy}
-cd ${GOPATH-$HOME/go}/src/github.com/ieb/pushprox/client
+go get github.com/adobe/pushprox/{client,proxy}
+cd ${GOPATH-$HOME/go}/src/github.com/adobe/pushprox/client
 go build
-cd ${GOPATH-$HOME/go}/src/github.com/ieb/pushprox/proxy
+cd ${GOPATH-$HOME/go}/src/github.com/adobe/pushprox/proxy
 go build
 ```
 

@@ -3,19 +3,19 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.9
-    working_directory: /go/src/github.com/ieb/pushprox
+    working_directory: /go/src/github.com/adobe/pushprox
     steps:
       - checkout
       - run:
           name: Build proxy
           command: |
-              cd /go/src/github.com/ieb/pushprox/proxy
+              cd /go/src/github.com/adobe/pushprox/proxy
               go get
               go build
       - run:
           name: Build client
           command: |
-              cd /go/src/github.com/ieb/pushprox/client
+              cd /go/src/github.com/adobe/pushprox/client
               go get
               go build
       - run:
@@ -53,6 +53,7 @@ jobs:
               sleep 5
               echo "From exporter"
               set +e
+              sleep 10
               curl -g -v http://localhost:9100/metrics | head -20
               echo "From prometheus"
               curl -g -v http://localhost:9090/api/v1/query?query=node_cpu | head -20

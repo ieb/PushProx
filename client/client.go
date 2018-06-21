@@ -22,7 +22,6 @@ import (
 	"github.com/go-kit/kit/log/level"
 	"github.com/prometheus/common/promlog"
 	"github.com/prometheus/common/promlog/flag"
-	"github.com/ieb/pushprox/util"
 )
 
 var (
@@ -38,7 +37,7 @@ type Coordinator struct {
 
 func (c *Coordinator) doScrape(request *http.Request, client *http.Client) {
 	logger := log.With(c.logger, "scrape_id", request.Header.Get("id"))
-	ctx, _ := context.WithTimeout(request.Context(), util.GetScrapeTimeout(request.Header))
+	ctx, _ := context.WithTimeout(request.Context(), GetScrapeTimeout(request.Header))
 	request = request.WithContext(ctx)
 
 	// We cannot handle http requests at the proxy, as we would only

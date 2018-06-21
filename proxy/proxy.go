@@ -18,12 +18,11 @@ import (
 	"github.com/prometheus/common/promlog"
 	"github.com/prometheus/common/promlog/flag"
 
-	"github.com/ieb/pushprox/util"
 )
 
 var (
 	listenAddress = kingpin.Flag("web.listen-address", "Address to listen on for proxy and client requests.").Default(":8080").String()
-)
+) 
 
 func copyHTTPResponse(resp *http.Response, w http.ResponseWriter) {
 	for k, v := range resp.Header {
@@ -48,8 +47,10 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		// Proxy request
+		level.Error(logger).Log("msg", "Timeout scraping:", "timeout",  GetScrapeTimeoutWithLogger(r.Header, logger))
 		if r.URL.Host != "" {
-			ctx, _ := context.WithTimeout(r.Context(), util.GetScrapeTimeout(r.Header))
+
+			ctx, _ := context.WithTimeout(r.Context(), GetScrapeTimeout(r.Header))
 			request := r.WithContext(ctx)
 			request.RequestURI = ""
 

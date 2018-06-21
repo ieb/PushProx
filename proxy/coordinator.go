@@ -13,7 +13,6 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"github.com/ieb/pushprox/util"
 )
 
 var (
@@ -149,7 +148,7 @@ func (c *Coordinator) WaitForScrapeInstruction(w http.ResponseWriter, fqdn strin
 func (c *Coordinator) ScrapeResult(r *http.Response) error {
 	id := r.Header.Get("Id")
 	level.Info(c.logger).Log("msg", "ScrapeResult", "scrape_id", id)
-	ctx, _ := context.WithTimeout(context.Background(), util.GetScrapeTimeout(r.Header))
+	ctx, _ := context.WithTimeout(context.Background(), GetScrapeTimeout(r.Header))
 	// Don't expose internal headers.
 	r.Header.Del("Id")
 	r.Header.Del("X-Prometheus-Scrape-Timeout-Seconds")

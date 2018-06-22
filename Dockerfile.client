@@ -11,4 +11,4 @@ WORKDIR /root/
 COPY --from=builder /go/src/app/client/client .
 ENV PULL_URL http://localhost:4502/metrics
 ENV PROXY_URL http://contaner.proxy
-CMD ./client --proxy-url=$PROXY_URL --pull-url=$PULL_URL
+CMD exec ./client --proxy-url=$PROXY_URL --pull-url=$PULL_URL

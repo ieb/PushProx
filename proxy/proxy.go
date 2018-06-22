@@ -56,6 +56,7 @@ func main() {
 
 			resp, err, disconnect := coordinator.DoScrape(ctx, request, w)
 			if disconnect {
+				level.Error(logger).Log("msg", "Scraping: Disconnected")
 				return
 			}
 			if err != nil {
@@ -64,6 +65,7 @@ func main() {
 				return
 			}
 			defer resp.Body.Close()
+			level.Debug(logger).Log("msg", "Scraping: Sending scrap response")
 			copyHTTPResponse(resp, w)
 			return
 		}
@@ -74,7 +76,7 @@ func main() {
 			request, doscrape := coordinator.WaitForScrapeInstruction(w, strings.TrimSpace(string(fqdn)))
 			if doscrape {
 				request.WriteProxy(w) // Send full request as the body of the response.
-				level.Info(logger).Log("msg", "Responded to /poll", "url", request.URL.String(), "scrape_id", request.Header.Get("Id"))
+				level.Debug(logger).Log("msg", "Responded to /poll", "url", request.URL.String(), "scrape_id", request.Header.Get("Id"))
 			} else {
 				level.Info(logger).Log("msg", "Connection was closed by client ")
 
@@ -86,6 +88,7 @@ func main() {
 		if r.URL.Path == "/push" {
 			buf := &bytes.Buffer{}
 			io.Copy(buf, r.Body)
+
 			scrapeResult, _ := http.ReadResponse(bufio.NewReader(buf), nil)
 			level.Info(logger).Log("msg", "Got /push", "scrape_id", scrapeResult.Header.Get("Id"))
 			err := coordinator.ScrapeResult(scrapeResult)

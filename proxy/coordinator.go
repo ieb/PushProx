@@ -106,9 +106,9 @@ func (c *Coordinator) DoScrape(ctx context.Context, r *http.Request, w http.Resp
 	select {
 	case <-notify:
 		level.Info(c.logger).Log("msg", "DoScrape", "client closed, scrape id", id )
-		return nil, nil, false
+		return nil, nil, true
 	case <-ctx.Done():
-		return nil, fmt.Errorf("Matching client not found for %q: %s", r.URL.String(), ctx.Err()), true
+		return nil, fmt.Errorf("Matching client not found for %q: %s", r.URL.String(), ctx.Err()), false
 	case c.getRequestChannel(r.URL.Hostname()) <- r:
 	}
 
@@ -121,11 +121,13 @@ func (c *Coordinator) DoScrape(ctx context.Context, r *http.Request, w http.Resp
 	select {
 	case <-notify:
 		level.Info(c.logger).Log("msg", "DoScrape", "client closed, scrape id", id )
-		return nil, nil, false
+		return nil, nil, true
 	case <-ctx.Done():
-		return nil, ctx.Err(), true
+		level.Debug(c.logger).Log("msg", "DoScrape", "Done timeout", id )
+		return nil, ctx.Err(), false
 	case resp := <-respCh:
-		return resp, nil, true
+		level.Debug(c.logger).Log("msg", "DoScrape", "Response Ok", id )
+		return resp, nil, false
 	}
 }
 
@@ -152,7 +154,7 @@ func (c *Coordinator) WaitForScrapeInstruction(w http.ResponseWriter, fqdn strin
 						level.Info(c.logger).Log("msg", "WaitForScrapeInstruction", "Timeout waiting for scape ", fqdn)
 					// Request has timed out, get another one.
 					default:
-						level.Info(c.logger).Log("msg", "WaitForScrapeInstruction", "Ok waiting for scrape ", fqdn)
+						level.Debug(c.logger).Log("msg", "WaitForScrapeInstruction", "Ok waiting for scrape ", fqdn)
 						return request, true
 				}
 			}
@@ -183,10 +185,12 @@ func (c *Coordinator) ScrapeResult(r *http.Response) error {
 	// if the client disconnects, we dont care, the response is already captured.
 	select {
 	case c.getResponseChannel(id) <- r:
+		level.Debug(c.logger).Log("msg", "ScrapeResult", "Sent to response channel ", id)
 		return nil
 	case <-ctx.Done():
 		// timeout, remove theResponse channel since the request that asked
 		// for the scrape wont remove it.
+		level.Debug(c.logger).Log("msg", "ScrapeResult", "Timeout waiting for response channel ", id)
 		c.removeResponseChannel(id)
 		return ctx.Err()
 	}

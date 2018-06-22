@@ -15,6 +15,8 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/go-kit/kit/log/level"
+	glog "github.com/go-kit/kit/log"
+
 	"github.com/prometheus/common/log"
 	"github.com/prometheus/common/promlog"
 	"github.com/prometheus/common/promlog/flag"
@@ -23,6 +25,7 @@ import (
 
 var (
 	listenAddress = kingpin.Flag("web.listen-address", "Address to listen on for proxy and client requests.").Default(":8080").String()
+	loggerName   = kingpin.Flag("loggername", "Logger name to use so that the logs can be filtered").Default("proxyserver").String()
 ) 
 
 func copyHTTPResponse(resp *http.Response, w http.ResponseWriter) {
@@ -44,6 +47,7 @@ func main() {
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 	logger := promlog.New(allowedLevel)
+	logger = glog.With(logger, "logger", *loggerName)
 	coordinator := NewCoordinator(logger)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

@@ -102,6 +102,7 @@ func (c *Coordinator) DoScrape(ctx context.Context, r *http.Request, w http.Resp
 	// if the client is not connected, then this will block until it is connected.
 	// the server doing the scrape could disconnect before the requestChannel becomes available
 	// that would leave the sockets in an ugly state and should be handled
+	// the key is the FQDN and the port, 
 	notify := w.(http.CloseNotifier).CloseNotify()
 	select {
 	case <-notify:
@@ -109,7 +110,7 @@ func (c *Coordinator) DoScrape(ctx context.Context, r *http.Request, w http.Resp
 		return nil, nil, true
 	case <-ctx.Done():
 		return nil, fmt.Errorf("Matching client not found for %q: %s", r.URL.String(), ctx.Err()), false
-	case c.getRequestChannel(r.URL.Hostname()) <- r:
+	case c.getRequestChannel(r.URL.Hostname()+":"+r.URL.Port()) <- r:
 	}
 
 	// grab the response channel and wait for the client to push the data.

@@ -66,17 +66,14 @@ func (c *Coordinator) doScrape(request *http.Request, client *http.Client) {
 			level.Warn(logger).Log("msg", msg2)
 			return
 		}
-		level.Info(logger).Log("msg", "Pushed failed scrape response")
 		return
 	}
-	level.Info(logger).Log("msg", "Retrieved scrape response")
 	err = c.doPush(scrapeResp, request, client)
 	if err != nil {
 		msg2 := fmt.Sprintf("Failed to push failed scrape response from %s: %s", request.URL.String(), err)
 		level.Warn(logger).Log("msg", msg2)
 		return
 	}
-	level.Info(logger).Log("msg", "Pushed scrape result")
 }
 
 // Report the result of the scrape back up to the proxy.
@@ -174,8 +171,8 @@ func main() {
 		level.Warn(logger).Log("msg", "--pull-url not a valid url valid ", *pullURL, "err", err)
 		os.Exit(1)
 	}
-
-	level.Info(coordinator.logger).Log("msg", "URL and FQDN info", "proxy_url", *proxyURL, "Using FQDN of", *myFqdn, " and Pull URL ", *pullURL)
+	msg := fmt.Sprintf("URL and FQDN info proxy_url %s Using FQDN of %s  and Pull URL %s ", *proxyURL, *myFqdn, *pullURL )
+	level.Info(coordinator.logger).Log("msg", msg)
 	for {
 		loop(coordinator)
 	}

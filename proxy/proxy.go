@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+	"regexp"
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 
@@ -73,7 +74,14 @@ func main() {
 		// Client registering and asking for scrapes.
 		if r.URL.Path == "/poll" {
 			fqdn, _ := ioutil.ReadAll(r.Body)
-			request, doscrape := coordinator.WaitForScrapeInstruction(w, strings.TrimSpace(string(fqdn)))
+			r, _ := regexp.Compile(":.*$")
+			// the key is the FQDN and the port
+			key := strings.TrimSpace(string(fqdn))
+			if !r.MatchString(key) {
+				// assume port 80 if none specified in teh key.
+				key = key + ":80"
+			}
+			request, doscrape := coordinator.WaitForScrapeInstruction(w, key)
 			if doscrape {
 				request.WriteProxy(w) // Send full request as the body of the response.
 				level.Debug(logger).Log("msg", "Responded to /poll", "url", request.URL.String(), "scrape_id", request.Header.Get("Id"))

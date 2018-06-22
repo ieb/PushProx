@@ -26,6 +26,7 @@ import (
 
 var (
 	myFqdn   = kingpin.Flag("fqdn", "FQDN to register with, typically best to use the default").Default(fqdn.Get()).String()
+	loggerName   = kingpin.Flag("loggername", "Logger name to use so that the logs can be filtered").Default("proxyclient").String()
 	pullURL  = kingpin.Flag("pull-url", "Pull URL to use").Required().String()
 	proxyURL = kingpin.Flag("proxy-url", "Push proxy to talk to.").Required().String()
 	promToken = os.Getenv("PROM_TOKEN")
@@ -157,6 +158,7 @@ func main() {
 	kingpin.HelpFlag.Short('h')
 	kingpin.Parse()
 	logger := promlog.New(allowedLevel)
+	logger = log.With(logger, "logger", *loggerName)
 	coordinator := Coordinator{logger: logger}
 	if *proxyURL == "" {
 		level.Error(coordinator.logger).Log("msg", "--proxy-url flag must be specified.")

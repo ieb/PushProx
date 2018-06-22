@@ -54,7 +54,10 @@ func main() {
 			request := r.WithContext(ctx)
 			request.RequestURI = ""
 
-			resp, err := coordinator.DoScrape(ctx, request)
+			resp, err, disconnect := coordinator.DoScrape(ctx, request, w)
+			if disconnect {
+				return
+			}
 			if err != nil {
 				level.Error(logger).Log("msg", "Error scraping:", "err", err, "url", request.URL.String())
 				http.Error(w, fmt.Sprintf("Error scraping %q: %s", request.URL.String(), err.Error()), 500)

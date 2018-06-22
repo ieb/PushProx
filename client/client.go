@@ -54,7 +54,7 @@ func (c *Coordinator) doScrape(request *http.Request, client *http.Client) {
 	scrapeResp, err := client.Do(request)
 	if err != nil {
 		msg := fmt.Sprintf("Failed to scrape %s: %s", request.URL.String(), err)
-		level.Warn(logger).Log("msg", "Failed to scrape", "Request URL", request.URL.String(), "err", err)
+		level.Warn(logger).Log("msg", msg)
 		resp := &http.Response{
 			StatusCode: 500,
 			Header:     http.Header{},
@@ -62,7 +62,8 @@ func (c *Coordinator) doScrape(request *http.Request, client *http.Client) {
 		}
 		err = c.doPush(resp, request, client)
 		if err != nil {
-			level.Warn(logger).Log("msg", "Failed to push failed scrape response:", "err", err)
+			msg2 := fmt.Sprintf("Failed to push failed scrape response from %s: %s", request.URL.String(), err)
+			level.Warn(logger).Log("msg", msg2)
 			return
 		}
 		level.Info(logger).Log("msg", "Pushed failed scrape response")
@@ -71,7 +72,8 @@ func (c *Coordinator) doScrape(request *http.Request, client *http.Client) {
 	level.Info(logger).Log("msg", "Retrieved scrape response")
 	err = c.doPush(scrapeResp, request, client)
 	if err != nil {
-		level.Warn(logger).Log("msg", "Failed to push scrape response:", "err", err)
+		msg2 := fmt.Sprintf("Failed to push failed scrape response from %s: %s", request.URL.String(), err)
+		level.Warn(logger).Log("msg", msg2)
 		return
 	}
 	level.Info(logger).Log("msg", "Pushed scrape result")

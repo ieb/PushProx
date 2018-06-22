@@ -3,19 +3,19 @@ jobs:
   build:
     docker:
       - image: circleci/golang:1.9
-    working_directory: /go/src/github.com/adobe/pushprox
+    working_directory: /go/src/github.com/ieb/pushprox
     steps:
       - checkout
       - run:
           name: Build proxy
           command: |
-              cd /go/src/github.com/adobe/pushprox/proxy
+              cd /go/src/github.com/ieb/pushprox/proxy
               go get
               go build
       - run:
           name: Build client
           command: |
-              cd /go/src/github.com/adobe/pushprox/client
+              cd /go/src/github.com/ieb/pushprox/client
               go get
               go build
       - run:

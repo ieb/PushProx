@@ -47,7 +47,7 @@ jobs:
               echo "Node epxporter is launched"
               ./proxy/proxy &
               echo "Proxy is launched"
-              ./client/client --proxy-url=http://127.0.0.1:8080 --pull-url=http://127.0.0.1:9100/metrics &
+              ./client/client --proxy-url=http://127.0.0.1:8080 --pull-url=http://127.0.0.1:9100/metrics --fqdn=$(hostname):9100 &
               echo "Client is launched"
               ./prometheus-2.0.0.linux-amd64/prometheus --config.file=prometheus-2.0.0.linux-amd64/prometheus.yml  &
               sleep 5

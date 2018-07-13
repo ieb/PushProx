@@ -15,25 +15,29 @@ the client is running. Other than that the changes are minimal, mostly Docker co
 
 ## Running
 
+```
+mkdir ${GOPATH-$HOME/go}/src/github.com/ieb/
+cd ${GOPATH-$HOME/go}/src/github.com/ieb/
+git clone https://github.com/ieb/PushProx.git pushprox
+```
+
 First build the proxy and client:
 
+
+
 ```
-go get github.com/ieb/pushprox/{client,proxy}
-cd ${GOPATH-$HOME/go}/src/github.com/ieb/pushprox/client
-go build
-cd ${GOPATH-$HOME/go}/src/github.com/ieb/pushprox/proxy
-go build
+make build
 ```
 
 Run the proxy somewhere both Prometheus and the clients can get to:
 
 ```
-./proxy
+./proxy/proxy
 ```
 
 On every target machine run the client, pointing it at the proxy:
 ```
-./client --proxy-url=http://proxy:8080/ --pull-url=http://localhost:4502/metrics
+./proxy/client --proxy-url=http://proxy:8080/ --pull-url=http://localhost:4502/metrics
 ```
 
 In Prometheus, use the proxy as a `proxy_url`:
@@ -54,17 +58,21 @@ If the target must be scraped over SSL/TLS, add:
 rather than the usual `scheme: https`. Only the default `scheme: http` works with the proxy,
 so this workaround is required.
 
+## Discovery client
+
+in discovery/ there is a discovery client for Kubernetes that should be run as a container in the same pod with access to the prometheus configuration file. On start it will load the a starting prometheus.yaml file, discover the proxy servers that are running
+and write a new promethues yaml file when done, notifying prometheus to check for changes.
+
 ## Docker files
 
-There are 2 Docker files. Dockerfile.client and Dockerfile.proxy for the client and proxy. The Proxy can
+There are 3 Docker files. Dockerfile.client, Dockerfile.proxy, Dockerfile.discovery for the client and proxy. The Proxy can
 probably be run as is. The client should be used in annother Dockerfile containing the application copying 
 the client binary into that Dockerfile and running the client as a background process with appropriate
 command line params. Both --proxy-url and --pull-url must be specified, other parameters are optional.
 
 To build the docker files
 ````
-docker build -f Dockerfile.client .
-docker build -f Dockerfile.proxy .
+make docker TAGBASE=hub.docker.com/pushprox VERSION=1.3
 ````
 
 ## Service Discovery

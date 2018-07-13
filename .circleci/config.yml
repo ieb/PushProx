@@ -19,6 +19,12 @@ jobs:
               go get
               go build
       - run:
+          name: Build discovery
+          command: |
+              cd /go/src/github.com/ieb/pushprox/discovery
+              go get
+              go build
+      - run:
           name: Download and untar node_exporter
           command: |
               wget https://github.com/prometheus/node_exporter/releases/download/v0.15.1/node_exporter-0.15.1.linux-amd64.tar.gz
@@ -43,6 +49,7 @@ jobs:
       - run:
           name: Run everything and test that Prometheus can scrape node_exporter via pushprox
           command: |
+              echo "Testing without discovery, since there is none."
               ./node_exporter-0.15.1.linux-amd64/node_exporter &
               echo "Node epxporter is launched"
               ./proxy/proxy &
